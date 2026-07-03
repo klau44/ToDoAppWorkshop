@@ -1,6 +1,7 @@
 package pl.coderslab;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +33,7 @@ public class TaskManager {
                     System.out.println("... deleting task ...");
                     System.out.println("Please select number to remove");
                     String taskNum = scanner.nextLine();
-                    removeTask(Integer.parseInt(taskNum));
+                    removeTask(taskNum, scanner);
                     showCommands();
                 }
                 case "list" -> {
@@ -81,7 +82,15 @@ public class TaskManager {
         }
     }
 
-    private static void removeTask(int taskNum) {
+    private static void removeTask(String taskNumStr, Scanner scanner) {
+        while (!NumberUtils.isParsable(taskNumStr) ||
+                Integer.parseInt(taskNumStr) > tasks.length ||
+                Integer.parseInt(taskNumStr) < 1) {
+                System.out.println("Provide correct format. Choose number from 1 to " + tasks.length);
+            taskNumStr = scanner.nextLine();
+        }
+        int taskNum = Integer.parseInt(taskNumStr);
         tasks = ArrayUtils.remove(tasks, taskNum - 1);
+        System.out.println("... great, task " + taskNum + " was deleted ...");
     }
 }
