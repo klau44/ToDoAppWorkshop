@@ -1,12 +1,14 @@
 package pl.coderslab;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -44,8 +46,8 @@ public class TaskManager {
                     listTasks();
                 }
                 case "exit" -> {
+                    saveTasksToFile("tasks2.csv");
                     System.out.println(ConsoleColors.RED + "... bye ...");
-                    // todo: save tasks from array to file
                     System.exit(0);
                 }
                 default -> System.out.println(" - unknown command - ");
@@ -108,5 +110,25 @@ public class TaskManager {
         tasks = Arrays.copyOf(tasks, tasks.length + 1);
         tasks[tasks.length - 1] = new String[]{taskDescription,taskDueDate, taskImportant};
         System.out.println("... new task has been added ...");
+    }
+
+    private static void saveTasksToFile(String fileName) {
+        Path path = Paths.get(fileName);
+        List<String> outList = convert2DTableToList();
+        try {
+            Files.write(path, outList);
+            System.out.println("... tasks were saved to file " + fileName + " ...");
+        } catch (IOException ex) {
+            System.out.println("Nie można zapisać pliku.");
+        }
+    }
+
+    private static List<String> convert2DTableToList() {
+        List<String> tasksList = new ArrayList<>();
+        for (int i = 0; i < tasks.length; i++) {
+            String task = StringUtils.join(tasks[i], ", ");
+            tasksList.add(task);
+        }
+        return tasksList;
     }
 }
