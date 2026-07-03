@@ -1,10 +1,11 @@
 package pl.coderslab;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -23,17 +24,29 @@ public class TaskManager {
         }
 
         Scanner scanner = new Scanner(System.in);
-        String userCommand = scanner.nextLine();
-
-        switch (userCommand) {
-            case "add" -> System.out.println("... adding task ...");
-            case "remove" -> System.out.println("... deleting task ...");
-            case "list" -> {
-                System.out.println("... listing tasks ...");
-                listTasks();
+        while (scanner.hasNextLine()) {
+            String userCommand = scanner.nextLine();
+            switch (userCommand) {
+                case "add" -> System.out.println("... adding task ...");
+                case "remove" -> {
+                    System.out.println("... deleting task ...");
+                    System.out.println("Please select number to remove");
+                    String taskNum = scanner.nextLine();
+                    removeTask(Integer.parseInt(taskNum));
+                    showCommands();
+                }
+                case "list" -> {
+                    System.out.println("... listing tasks ...");
+                    listTasks();
+                    showCommands();
+                }
+                case "exit" -> {
+                    System.out.println(ConsoleColors.RED + "... bye ...");
+                    // todo: save tasks from array to file
+                    System.exit(0);
+                }
+                default -> System.out.println(" - unknown command - ");
             }
-            case "exit" -> System.out.println("... bye ...");
-            default -> System.out.println(" - unknown command - ");
         }
     }
 
@@ -66,5 +79,9 @@ public class TaskManager {
             }
             System.out.println();
         }
+    }
+
+    private static void removeTask(int taskNum) {
+        tasks = ArrayUtils.remove(tasks, taskNum - 1);
     }
 }
