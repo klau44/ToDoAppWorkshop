@@ -15,6 +15,7 @@ import java.util.Scanner;
 public class TaskManager {
 
     private static final String FILE_NAME = "tasks.csv";
+    private static final String FILE_NAME_TO_SAVE = "tasks2.csv";
     private static final String[] COMMANDS = {"add", "remove", "list", "exit"};
     private static String[][] tasks;
 
@@ -22,7 +23,7 @@ public class TaskManager {
         loadData();
 
         Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
+        while (true) {
             showCommands();
             String userCommand = scanner.nextLine();
             switch (userCommand) {
@@ -41,7 +42,7 @@ public class TaskManager {
                     listTasks();
                 }
                 case "exit" -> {
-                    saveTasksToFile("tasks2.csv");
+                    saveTasksToFile(FILE_NAME_TO_SAVE);
                     System.out.println(ConsoleColors.RED + "... bye ...");
                     System.exit(0);
                 }
