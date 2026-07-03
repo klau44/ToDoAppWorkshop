@@ -17,7 +17,7 @@ public class TaskManager {
     public static void main(String[] args) {
         showCommands();
         try {
-            getDataFromFile(FILE_NAME);
+            tasks = getDataFromFile(FILE_NAME);
         } catch (IOException e) {
             System.out.println("Error with reading data from a file");
         }
@@ -28,7 +28,10 @@ public class TaskManager {
         switch (userCommand) {
             case "add" -> System.out.println("... adding task ...");
             case "remove" -> System.out.println("... deleting task ...");
-            case "list" -> System.out.println("... listing tasks ...");
+            case "list" -> {
+                System.out.println("... listing tasks ...");
+                listTasks();
+            }
             case "exit" -> System.out.println("... bye ...");
             default -> System.out.println(" - unknown command - ");
         }
@@ -53,5 +56,15 @@ public class TaskManager {
             tasks[i][2] = partsOfTasks[2];
         }
         return tasks;
+    }
+
+    private static void listTasks() {
+        for (int i = 0; i < tasks.length; i++) {
+            System.out.print(i + 1 + ": ");
+            for (int j = 0; j < tasks[i].length; j++) {
+                System.out.print(tasks[i][j] + " ");
+            }
+            System.out.println();
+        }
     }
 }
