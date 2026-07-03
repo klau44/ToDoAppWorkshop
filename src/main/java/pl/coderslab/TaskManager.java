@@ -120,7 +120,7 @@ public class TaskManager {
     }
 
     private static String readTaskDueDate(Scanner scanner) {
-        System.out.println("Provide task due date. Required format: YYY-MM-DD");
+        System.out.println("Provide task due date. Required format: YYYY-MM-DD");
         String taskDueDate = scanner.nextLine();
         while (!isDateValid(taskDueDate)) {
             System.out.println("Use correct date format: YYYY-MM-DD");
