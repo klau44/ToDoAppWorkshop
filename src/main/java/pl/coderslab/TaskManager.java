@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,18 +29,19 @@ public class TaskManager {
         while (scanner.hasNextLine()) {
             String userCommand = scanner.nextLine();
             switch (userCommand) {
-                case "add" -> System.out.println("... adding task ...");
+                case "add" -> {
+                    System.out.println("... adding task ...");
+                    addTask(scanner);
+                }
                 case "remove" -> {
                     System.out.println("... deleting task ...");
                     System.out.println("Please select number to remove");
                     String taskNum = scanner.nextLine();
                     removeTask(taskNum, scanner);
-                    showCommands();
                 }
                 case "list" -> {
                     System.out.println("... listing tasks ...");
                     listTasks();
-                    showCommands();
                 }
                 case "exit" -> {
                     System.out.println(ConsoleColors.RED + "... bye ...");
@@ -48,6 +50,7 @@ public class TaskManager {
                 }
                 default -> System.out.println(" - unknown command - ");
             }
+            showCommands();
         }
     }
 
@@ -91,6 +94,19 @@ public class TaskManager {
         }
         int taskNum = Integer.parseInt(taskNumStr);
         tasks = ArrayUtils.remove(tasks, taskNum - 1);
-        System.out.println("... great, task " + taskNum + " was deleted ...");
+        System.out.println("... great, task " + taskNum + " has been deleted ...");
+    }
+
+    private static void addTask(Scanner scanner) {
+        System.out.println("Provide task description:");
+        String taskDescription = scanner.nextLine();
+        System.out.println("Provide task due date:");
+        String taskDueDate = scanner.nextLine();
+        System.out.println("Is this task important: true/false");
+        String taskImportant = scanner.nextLine();
+
+        tasks = Arrays.copyOf(tasks, tasks.length + 1);
+        tasks[tasks.length - 1] = new String[]{taskDescription,taskDueDate, taskImportant};
+        System.out.println("... new task has been added ...");
     }
 }
