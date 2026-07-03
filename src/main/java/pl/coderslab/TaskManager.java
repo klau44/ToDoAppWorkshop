@@ -1,7 +1,6 @@
 package pl.coderslab;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
 import java.io.IOException;
@@ -20,15 +19,11 @@ public class TaskManager {
     private static String[][] tasks;
 
     public static void main(String[] args) {
-        showCommands();
-        try {
-            tasks = getDataFromFile(FILE_NAME);
-        } catch (IOException e) {
-            System.out.println("Error with reading data from a file");
-        }
+        loadData();
 
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextLine()) {
+            showCommands();
             String userCommand = scanner.nextLine();
             switch (userCommand) {
                 case "add" -> {
@@ -50,9 +45,27 @@ public class TaskManager {
                     System.out.println(ConsoleColors.RED + "... bye ...");
                     System.exit(0);
                 }
-                default -> System.out.println(" - unknown command - ");
+                default -> System.out.println(" - unknown command, please provide the correct one - ");
             }
-            showCommands();
+        }
+    }
+
+    private static void loadData() {
+        List<String> tasksList = new ArrayList<>();
+        try {
+            Path path = Paths.get(FILE_NAME);
+            tasksList = Files.readAllLines(path);
+        } catch (IOException e) {
+            System.out.println("Cannot read the file.");
+        }
+        putDataToTable(tasksList);
+    }
+
+    private static void putDataToTable(List<String> tasksList) {
+        tasks = new String[tasksList.size()][3];
+        for (int i = 0; i < tasksList.size(); i++) {
+            String[] taskData = tasksList.get(i).split(", ");
+            tasks[i] = taskData;
         }
     }
 
@@ -61,20 +74,6 @@ public class TaskManager {
         for (String command : COMMANDS) {
             System.out.println(ConsoleColors.RESET + command);
         }
-    }
-
-    private static String[][] getDataFromFile(String fileName) throws IOException {
-        Path path = Paths.get("tasks.csv");
-        List<String> tasksList = Files.readAllLines(path);
-        String[][] tasks = new String[tasksList.size()][3];
-
-        for (int i = 0; i < tasksList.size(); i++) {
-            String[] partsOfTasks = tasksList.get(i).split(", ");
-            tasks[i][0] = partsOfTasks[0];
-            tasks[i][1] = partsOfTasks[1];
-            tasks[i][2] = partsOfTasks[2];
-        }
-        return tasks;
     }
 
     private static void listTasks() {
@@ -87,43 +86,56 @@ public class TaskManager {
         }
     }
 
-    private static void removeTask(String taskNumStr, Scanner scanner) {
-        while (!NumberUtils.isParsable(taskNumStr) ||
-                Integer.parseInt(taskNumStr) > tasks.length ||
-                Integer.parseInt(taskNumStr) < 1) {
-                System.out.println("Provide correct format. Choose number from 1 to " + tasks.length);
-            taskNumStr = scanner.nextLine();
+    private static void removeTask(String taskNum, Scanner scanner) {
+        while (!NumberUtils.isParsable(taskNum) ||
+                Integer.parseInt(taskNum) > tasks.length ||
+                Integer.parseInt(taskNum) < 1) {
+            System.out.println("Provide correct format. Choose number from 1 to " + tasks.length);
+            taskNum = scanner.nextLine();
         }
-        int taskNum = Integer.parseInt(taskNumStr);
-        tasks = ArrayUtils.remove(tasks, taskNum - 1);
+        int index = Integer.parseInt(taskNum) - 1;
+        tasks = ArrayUtils.remove(tasks, index);
         System.out.println("... great, task " + taskNum + " has been deleted ...");
     }
 
     private static void addTask(Scanner scanner) {
+        String taskDescription = readTaskDescription(scanner);
+        String taskDueDate = readTaskDueDate(scanner);
+        String taskImportant = readTaskImportant(scanner);
+
+        tasks = Arrays.copyOf(tasks, tasks.length + 1);
+        tasks[tasks.length - 1] = new String[]{taskDescription, taskDueDate, taskImportant};
+        System.out.println("... new task has been added ...");
+    }
+
+    private static String readTaskDescription(Scanner scanner) {
         System.out.println("Provide task description (don't use delimiters):");
         String taskDescription = scanner.nextLine();
-        while(taskDescription.contains(",")) {
+        while (taskDescription.contains(",")) {
             System.out.println("Don't use delimiter! Provide proper task description:");
             taskDescription = scanner.nextLine();
         }
+        return taskDescription;
+    }
 
+    private static String readTaskDueDate(Scanner scanner) {
         System.out.println("Provide task due date. Required format: YYY-MM-DD");
         String taskDueDate = scanner.nextLine();
-        while(!isDateValid(taskDueDate)) {
+        while (!isDateValid(taskDueDate)) {
             System.out.println("Use correct date format: YYYY-MM-DD");
             taskDueDate = scanner.nextLine();
         }
+        return taskDueDate;
+    }
 
-        System.out.println("Is this task important: true/false");
+    private static String readTaskImportant(Scanner scanner) {
+        System.out.println("Is this task important? Provide: true/false");
         String taskImportant = scanner.nextLine();
-        while(!"true".equals(taskImportant) && !"false".equals(taskImportant)) {
+        while (!"true".equals(taskImportant) && !"false".equals(taskImportant)) {
             System.out.println("Provide 'true' or 'false' only");
             taskImportant = scanner.nextLine();
         }
-
-        tasks = Arrays.copyOf(tasks, tasks.length + 1);
-        tasks[tasks.length - 1] = new String[]{taskDescription,taskDueDate, taskImportant};
-        System.out.println("... new task has been added ...");
+        return taskImportant;
     }
 
     private static boolean isDateValid(String date) {
@@ -132,19 +144,18 @@ public class TaskManager {
 
     private static void saveTasksToFile(String fileName) {
         Path path = Paths.get(fileName);
-        List<String> outList = convert2DTableToList();
         try {
-            Files.write(path, outList);
+            Files.write(path, convert2DTableToList());
             System.out.println("... tasks were saved to file " + fileName + " ...");
         } catch (IOException ex) {
-            System.out.println("Nie można zapisać pliku.");
+            System.out.println("Error with saving file: " + fileName);
         }
     }
 
     private static List<String> convert2DTableToList() {
         List<String> tasksList = new ArrayList<>();
         for (int i = 0; i < tasks.length; i++) {
-            String task = StringUtils.join(tasks[i], ", ");
+            String task = String.join(", ", tasks[i]);
             tasksList.add(task);
         }
         return tasksList;
