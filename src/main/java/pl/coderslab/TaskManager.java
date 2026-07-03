@@ -100,16 +100,34 @@ public class TaskManager {
     }
 
     private static void addTask(Scanner scanner) {
-        System.out.println("Provide task description:");
+        System.out.println("Provide task description (don't use delimiters):");
         String taskDescription = scanner.nextLine();
-        System.out.println("Provide task due date:");
+        while(taskDescription.contains(",")) {
+            System.out.println("Don't use delimiter! Provide proper task description:");
+            taskDescription = scanner.nextLine();
+        }
+
+        System.out.println("Provide task due date. Required format: YYY-MM-DD");
         String taskDueDate = scanner.nextLine();
+        while(!isDateValid(taskDueDate)) {
+            System.out.println("Use correct date format: YYYY-MM-DD");
+            taskDueDate = scanner.nextLine();
+        }
+
         System.out.println("Is this task important: true/false");
         String taskImportant = scanner.nextLine();
+        while(!"true".equals(taskImportant) && !"false".equals(taskImportant)) {
+            System.out.println("Provide 'true' or 'false' only");
+            taskImportant = scanner.nextLine();
+        }
 
         tasks = Arrays.copyOf(tasks, tasks.length + 1);
         tasks[tasks.length - 1] = new String[]{taskDescription,taskDueDate, taskImportant};
         System.out.println("... new task has been added ...");
+    }
+
+    private static boolean isDateValid(String date) {
+        return date != null && date.matches("^\\d{4}-\\d{2}-\\d{2}$");
     }
 
     private static void saveTasksToFile(String fileName) {
